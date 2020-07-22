@@ -1,7 +1,7 @@
 import logging
+from datetime import datetime
 
 import requests
-
 
 REQUEST_FMT = "https://api.github.com/repos/{0}/{1}/issues"
 
@@ -34,15 +34,19 @@ def triage(config):
             return {}
 
         for item in resp.json():
-            issues[repo_name].append(
-                {
-                    "url": item["html_url"],
-                    "title": item["title"],
-                    "type": "Pull Request"
-                    if item.get("pull_request")
-                    else "Issue",
-                }
+            created_at = datetime.strptime(
+                item["created_at"], "%Y-%m-%dT%H:%M:%SZ"
             )
+            if created_at >= config.last_triage_date:
+                issues[repo_name].append(
+                    {
+                        "url": item["html_url"],
+                        "title": item["title"],
+                        "type": "Pull Request"
+                        if item.get("pull_request")
+                        else "Issue",
+                    }
+                )
 
     logging.info("triage successfully completed")
     return issues

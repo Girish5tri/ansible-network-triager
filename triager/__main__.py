@@ -56,7 +56,7 @@ def main():
         help="save logging information to a file",
     )
     group.add_argument(
-        "--log", action="store_true", help="display logging data on console",
+        "--log", action="store_true", help="display logging data on console"
     )
 
     parser.add_argument(
@@ -70,7 +70,7 @@ def main():
     )
 
     group.add_argument(
-        "--version", action="store_true", help="show version number",
+        "--version", action="store_true", help="show version number"
     )
 
     args = parser.parse_args()
