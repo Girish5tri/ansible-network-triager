@@ -10,6 +10,32 @@ orgs:
       - name: junipernetworks.junos
       - name: cisco.asa
       - name: ansible.netcommon
+      - name: ansible.snmp
+      - name: ansible.scm
+      - name: ansible.security
+      - name: ansible.network
+      - name: frr.frr
+      - name: openvswitch.openvswitch
+      - name: community.yang
+      - name: ansible.utils
+      - name: ibm.qradar
+      - name: trendmicro.deepsec
+      - name: splunk.es
+    ci_repos:
+      - name: ansible-collections/ansible.netcommon
+      - name: ansible-collections/ansible.network
+      - name: ansible-collections/ansible.security
+      - name: ansible-collections/ansible.snmp
+      - name: ansible-collections/ansible.utils
+      - name: ansible-collections/arista.eos
+      - name: ansible-collections/cisco.asa
+      - name: ansible-collections/cisco.ios
+      - name: ansible-collections/cisco.iosxr
+      - name: ansible-collections/cisco.nxos
+      - name: ansible-collections/ibm.qradar
+      - name: ansible-collections/junipernetworks.junos
+      - name: ansible-collections/splunk.es
+      - name: ansible-collections/trendmicro.deepsec
   - name: ansible
     repos:
       - name: ansible
@@ -17,12 +43,36 @@ orgs:
           - networking
           - needs_triage
       - name: pylibssh
+  - name: redhat-cop
+    repos:
+      - name: network.interfaces
+      - name: network.bgp
+      - name: network.base
+      - name: network.telemetry
+      - name: network.vpn
+      - name: network.acls
+      - name: network.ospf
+      - name: network.backup
+    ci_repos:
+      - name: redhat-cop/network.acls
+      - name: redhat-cop/network.bgp
+      - name: redhat-cop/network.interfaces
+      - name: redhat-cop/network.ospf
+      - name: redhat-cop/network.telemetry
+      - name: redhat-cop/network.vpn
+
 maintainers:
   - name: John Doe
     email: john@doe.localhost
-  - name: Jane Doe
-    email: jane@doe.localhost
+    
+
 triager:
-  email: testtriager@triage.example
+  address: testtriager@triage.example
   password: superSecretP@ssWorD
-timedelta: 7
+
+timedelta: 14
+
+github_token: 'token {enter your github token here}'
+
+
+

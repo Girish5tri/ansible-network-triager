@@ -8,9 +8,8 @@ REQUEST_FMT = "https://api.github.com/repos/{0}/{1}/issues"
 
 def triage(config):
     issues = {}
-    for org, repo in config.repos:
-        repo_name = repo["name"]
-        repo_labels = repo.get("labels", [])
+    for org, repo_name in config.repos:
+        repo_labels = []
 
         params = dict(since=config.last_triage_date.isoformat())
         if repo_labels:

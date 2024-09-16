@@ -28,10 +28,13 @@ class Config:
 
         # Populate org and repos to triage
         self.repos = []
+        self.ci_repos = []
         logging.debug("parsing orgs and repositories from config file")
         for org in config["orgs"]:
             for repo in org["repos"]:
-                self.repos.append((org["name"], repo))
+                self.repos.append((org["name"], repo["name"] if isinstance(repo, dict) else repo))
+            if "ci_repos" in org:
+                self.ci_repos.extend([repo['name'] if isinstance(repo, dict) else repo for repo in org["ci_repos"]])
 
         # Populate maintainers list
         logging.debug("parsing list of maintainers from config file")
