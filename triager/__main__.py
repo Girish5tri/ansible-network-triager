@@ -19,26 +19,35 @@ def run(args):
             format="%(levelname)-10s%(message)s", level=logging_level
         )
 
-    config = Config(args.config_file)
-    if args.bugs:
-        issues = triager.triage(config)
-        if issues:
-            table = make_table(issues)
-            logging.info("Printing triaged table to console")
-            print(table)
-            if args.send_email and config.is_email_ready:
-                send_mail(content=table, config=config, subject="Ansible Network Weekly Triage")
-    elif args.ci:
-        ci_report = generate_ci_report(config)
-        if ci_report:
-            table = make_table(ci_report, ci=True)
-            logging.info("Printing CI report table to console")
-            print(table)
-            report_date = ci_report.get("date", datetime.now().strftime("%Y-%m-%d"))
-            status = ci_report.get("overall_status", "Unknown")
-            if args.send_email and config.is_email_ready:
-                send_mail(content=table, config=config, subject=f"Ansible Network Nightly CI Report - {report_date} - {status}")
+    try:
+        config = Config(args.config_file)
+        report_date = datetime.now().strftime("%Y-%m-%d")
 
+        if args.bugs:
+            issues = triager.triage(config, config.bug_repos)
+            if issues:
+                table = make_table(issues)
+                logging.info("Printing triaged table to console")
+                print(table)
+                if args.send_email and config.is_email_ready:
+                    send_mail(content=table, config=config, subject=f"{config.organization_name} Weekly Triage - {report_date}")
+            else:
+                logging.warning("No issues found or error occurred during triage.")
+        elif args.ci:
+            ci_report = generate_ci_report(config)
+            if ci_report:
+                table = make_table(ci_report, ci=True)
+                logging.info("Printing CI report table to console")
+                print(table)
+                report_date = ci_report.get("date", datetime.now().strftime("%Y-%m-%d"))
+                status = ci_report.get("overall_status", "Unknown")
+                if args.send_email and config.is_email_ready:
+                    send_mail(content=table, config=config, subject=f"{config.organization_name} Nightly CI Report - {report_date} - {status}")
+            else:
+                logging.warning("No CI report generated or error occurred during CI report generation.")
+    except Exception as e:
+        logging.error(f"An error occurred: {str(e)}")
+        raise
 
 def main():
     parser = argparse.ArgumentParser(

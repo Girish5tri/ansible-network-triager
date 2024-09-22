@@ -1,50 +1,38 @@
+#Sample Test Case for Ansible Tool Functionality
+
 ---
+organization_name: "Ansible Networking"       
+
+workflow_name: "tests.yml"                    
+
 orgs:
   - name: ansible-collections
-    repos:
+    ci_and_bug_repos:                         
       - name: cisco.nxos
       - name: cisco.ios
       - name: cisco.iosxr
       - name: arista.eos
-      - name: vyos.vyos
       - name: junipernetworks.junos
       - name: cisco.asa
       - name: ansible.netcommon
       - name: ansible.snmp
-      - name: ansible.scm
       - name: ansible.security
       - name: ansible.network
-      - name: frr.frr
-      - name: openvswitch.openvswitch
-      - name: community.yang
       - name: ansible.utils
       - name: ibm.qradar
       - name: trendmicro.deepsec
       - name: splunk.es
-    ci_repos:
-      - name: ansible-collections/ansible.netcommon
-      - name: ansible-collections/ansible.network
-      - name: ansible-collections/ansible.security
-      - name: ansible-collections/ansible.snmp
-      - name: ansible-collections/ansible.utils
-      - name: ansible-collections/arista.eos
-      - name: ansible-collections/cisco.asa
-      - name: ansible-collections/cisco.ios
-      - name: ansible-collections/cisco.iosxr
-      - name: ansible-collections/cisco.nxos
-      - name: ansible-collections/ibm.qradar
-      - name: ansible-collections/junipernetworks.junos
-      - name: ansible-collections/splunk.es
-      - name: ansible-collections/trendmicro.deepsec
+    bug_specific_repos:                     
+      - name: ansible.scm
+      - name: vyos.vyos
+      - name: frr.frr
+      - name: openvswitch.openvswitch
+      - name: community.yang
   - name: ansible
-    repos:
-      - name: ansible
-        labels:
-          - networking
-          - needs_triage
+    bug_specific_repos:
       - name: pylibssh
   - name: redhat-cop
-    repos:
+    ci_and_bug_repos:
       - name: network.interfaces
       - name: network.bgp
       - name: network.base
@@ -52,14 +40,8 @@ orgs:
       - name: network.vpn
       - name: network.acls
       - name: network.ospf
+    bug_specific_repos:
       - name: network.backup
-    ci_repos:
-      - name: redhat-cop/network.acls
-      - name: redhat-cop/network.bgp
-      - name: redhat-cop/network.interfaces
-      - name: redhat-cop/network.ospf
-      - name: redhat-cop/network.telemetry
-      - name: redhat-cop/network.vpn
 
 maintainers:
   - name: John Doe
@@ -72,7 +54,44 @@ triager:
 
 timedelta: 14
 
-github_token: 'token {enter your github token here}'
+# github_token: 'enter your github token here to make authenticated requests or comment this line to make unauthenticated API requests'
 
 
+
+##Generic structure 
+# ---
+# organization_name: "Organization Name"        # Replace with your organization's name
+
+# workflow_name: "workflow.yml"                 # Replace with your workflow file name, by default its tests.yml
+
+# orgs:
+#   - name: collections-group                   # Name of the first group of repositories
+#     ci_and_bug_repos:                         # Repositories common between CI and bug tools
+#       - name: collection1
+#       - name: collection2
+#       - name: collection3
+#     bug_specific_repos:                       # Repositories only present in the bug tool
+#       - name: collection4
+#       - name: collection5
+#   - name: another-org                         # Name of the second organization or group
+#     bug_specific_repos:                       # Repositories only present in the bug tool
+#       - name: repo1
+#   - name: third-org                           # Name of the third organization or group
+#     ci_and_bug_repos:                         # Repositories common between CI and bug tools
+#       - name: repo2
+#       - name: repo3
+#     bug_specific_repos:                       # Bug tool-specific repositories
+#       - name: repo4
+
+# maintainers:
+#   - name: Maintainer Name                     # Replace with maintainer details
+#     email: maintainer@example.com             # Replace with actual email
+
+# triager:
+#   address: triager@example.com                # Replace with triager's email
+#   password: secretPassword                    # Replace with an appropriate password
+
+# timedelta: 14                                 # Time range in days for fetching relevant data (e.g., issues, pull requests), adjust as necessary
+
+# github_token: 'your_github_token_here'        # Replace with your GitHub token or comment this line out to make unauthenticated API requests
 

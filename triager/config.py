@@ -14,7 +14,7 @@ class Config:
             logging.info("config file not specified, setting default")
             cfg = "./config.yaml"
 
-        logging.info("attempting to read config file: {0}".format(cfg))
+        logging.info(f"attempting to read config file: {cfg}")
 
         try:
             with open(cfg, "r") as config_file:
@@ -25,16 +25,22 @@ class Config:
             sys.exit()
 
         logging.info("parsing information from config file")
+        self.organization_name = config.get("organization_name", "Generic Organization")
+        self.workflow_name = config.get("workflow_name", "tests.yml")
 
         # Populate org and repos to triage
-        self.repos = []
+        self.bug_repos = []
         self.ci_repos = []
         logging.debug("parsing orgs and repositories from config file")
-        for org in config["orgs"]:
-            for repo in org["repos"]:
-                self.repos.append((org["name"], repo["name"] if isinstance(repo, dict) else repo))
-            if "ci_repos" in org:
-                self.ci_repos.extend([repo['name'] if isinstance(repo, dict) else repo for repo in org["ci_repos"]])
+        for org in config.get("orgs", []):
+            org_name = org["name"]
+            for repo in org.get("ci_and_bug_repos", []):
+                repo_name = repo["name"] if isinstance(repo, dict) else repo
+                self.bug_repos.append((org_name, repo_name))
+                self.ci_repos.append(f"{org_name}/{repo_name}")
+            for repo in org.get("bug_specific_repos", []):
+                repo_name = repo["name"] if isinstance(repo, dict) else repo
+                self.bug_repos.append((org_name, repo_name))
 
         # Populate maintainers list
         logging.debug("parsing list of maintainers from config file")
@@ -53,15 +59,11 @@ class Config:
                     "password": config["triager"]["password"],
                 }
             except KeyError as exc:
-                logging.error(
-                    f"triager config malformed, key {exc!s} not found"
-                )
+                logging.error(f"triager config malformed, key {exc!s} not found")
             except TypeError:
-                logging.error(
-                    "triager config malformed, should be a dictionary"
-                )
+                logging.error("triager config malformed, should be a dictionary")
         else:
-            logging.debug("triager not found in config, will not send email")
+            logging.warning("triager not found in config, will not send email")
 
         # Set last triage date
         logging.debug("setting last triage date")
@@ -69,13 +71,22 @@ class Config:
             days=int(config["timedelta"])
         )
 
+        self.github_token = config.get("github_token")
+        if self.github_token:
+            logging.info("Using GitHub token from config file") 
+        elif os.getenv("GH_TOKEN"):
+            self.github_token = os.getenv("GH_TOKEN")
+            logging.info("Using GitHub token from environment variable")
+        else:
+            logging.warning("No GitHub token found. Proceeding without Token")
+
         logging.info("config file successfully parsed")
 
     @property
     def token(self):
-        logging.debug("fetching oauth token")
-        if os.getenv("GH_TOKEN"):
-            return {"Authorization": "token {0}".format(os.getenv("GH_TOKEN"))}
+        if self.github_token:
+            return {"Authorization": f"token {self.github_token}"}
+        return None
 
     @property
     def is_email_ready(self):

@@ -30,7 +30,7 @@ def send_mail(content, config, subject):
         logging.error(f"Failed to send email: {str(e)}")
 
 def send_bug_report(content, config):
-    subject = f"Ansible Network Weekly Triage - Bug Report - {date.today().isoformat()}"
+    subject = f"{config.organization_name} Weekly Triage - Bug Report - {date.today().isoformat()}"
     send_mail(content, config, subject)
 
 def send_ci_report(content, config):
@@ -38,6 +38,5 @@ def send_ci_report(content, config):
     status = ci_report.get("overall_status", "Unknown")
     report_date = ci_report.get("date", date.today().isoformat())
     
-    subject = f"Ansible Network Nightly CI Report - {report_date} - {status}"
+    subject = f"{config.organization_name} Nightly CI Report - {report_date} - {status}"
     send_mail(content, config, subject)
-
