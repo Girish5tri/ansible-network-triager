@@ -43,16 +43,15 @@ orgs:
     bug_specific_repos:
       - name: network.backup
 
-maintainers:
-  - name: John Doe
-    email: john@doe.localhost
-    
-
 triager:
-  address: testtriager@triage.example
-  password: superSecretP@ssWorD
+  address: ${EMAIL_SENDER}
+  password: ${EMAIL_PASSWORD}
 
 timedelta: 14
+
+github_token: ${GITHUB_TOKEN}
+
+maintainers: ${MAINTAINERS}
 
 # github_token: 'enter your github token here to make authenticated requests or comment this line to make unauthenticated API requests'
 

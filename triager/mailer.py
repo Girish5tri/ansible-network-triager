@@ -8,7 +8,7 @@ def send_mail(content, config, subject):
     logging.info("attempting to send email to maintainers") 
     msg = EmailMessage()
     msg["From"] = config.sender["email"]
-    msg["To"] = config.maintainers
+    msg["To"] = [str(maintainer) for maintainer in config.maintainers]
     msg["Subject"] = subject
 
     msg.set_content(str(content))

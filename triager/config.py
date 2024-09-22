@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+import json
 from datetime import datetime, timedelta
 from email.headerregistry import Address
 
@@ -43,11 +44,17 @@ class Config:
                 self.bug_repos.append((org_name, repo_name))
 
         # Populate maintainers list
-        logging.debug("parsing list of maintainers from config file")
-        self.maintainers = [
-            Address(item["name"], addr_spec=item["email"])
-            for item in config.get("maintainers", [])
-        ]
+        logging.debug("parsing list of maintainers from environment variable")
+        maintainers_json = os.environ.get("MAINTAINERS", "[]")
+        try:
+            maintainers_list = json.loads(maintainers_json)
+            self.maintainers = [
+                Address(item["name"], addr_spec=item["email"])
+                for item in maintainers_list
+            ]
+        except json.JSONDecodeError:
+            logging.error("Failed to parse MAINTAINERS JSON. Using empty list.")
+            self.maintainers = []
 
         # Set address to send triage emails from
         logging.debug("parsing triager email and password from config file")
@@ -55,8 +62,8 @@ class Config:
         if "triager" in config:
             try:
                 self.sender = {
-                    "email": config["triager"]["address"],
-                    "password": config["triager"]["password"],
+                    "email": os.environ.get("EMAIL_SENDER", config["triager"]["address"]),
+                    "password": os.environ.get("EMAIL_PASSWORD", config["triager"]["password"]),
                 }
             except KeyError as exc:
                 logging.error(f"triager config malformed, key {exc!s} not found")
@@ -71,12 +78,9 @@ class Config:
             days=int(config["timedelta"])
         )
 
-        self.github_token = config.get("github_token")
+        self.github_token = os.environ.get("GITHUB_TOKEN", config.get("github_token"))
         if self.github_token:
-            logging.info("Using GitHub token from config file") 
-        elif os.getenv("GH_TOKEN"):
-            self.github_token = os.getenv("GH_TOKEN")
-            logging.info("Using GitHub token from environment variable")
+            logging.info("Using GitHub token from environment or config file") 
         else:
             logging.warning("No GitHub token found. Proceeding without Token")
 
