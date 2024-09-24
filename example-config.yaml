@@ -49,11 +49,12 @@ triager:
 
 timedelta: 14
 
-github_token: ${GITHUB_TOKEN}
+#github_token: ${GITHUB_TOKEN}  #Use GITHUB_TOKEN if you have a GitHub Actions workflow configured, otherwise comment this line out for unauthenticated requests."
 
 maintainers: ${MAINTAINERS}
 
-# github_token: 'enter your github token here to make authenticated requests or comment this line to make unauthenticated API requests'
+# github_token: 'Manually enter your github token here to make authenticated requests or comment this line to make unauthenticated API requests'
+
 
 
 
