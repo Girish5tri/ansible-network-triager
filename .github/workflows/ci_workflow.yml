@@ -1,4 +1,4 @@
-name: CI Report Workflow
+name: Nightly CI Report Workflow
 
 on:
   schedule:

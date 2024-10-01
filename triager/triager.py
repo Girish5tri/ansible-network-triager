@@ -19,7 +19,8 @@ def triage(config, repos):
         params = dict(since=config.last_triage_date.isoformat(), assignee="none")
         issues[repo_name] = []
 
-        logging.info(f"requesting issue details for {org}/{repo_name}")
+        logging.info(f"Requesting issue details for {org}/{repo_name}")
+        logging.debug(f"Request params: {params}")
 
         try:
             resp = requests.get(
@@ -28,6 +29,8 @@ def triage(config, repos):
                 headers=headers,
             )
             resp.raise_for_status()  
+            logging.debug(f"Response status code: {resp.status_code}")
+            logging.debug(f"Response content: {resp.text[:500]}...") 
         except RequestException as e:
             logging.error(f"Error fetching issues for {org}/{repo_name}: {str(e)}")
             if isinstance(e, requests.exceptions.HTTPError):
@@ -41,6 +44,7 @@ def triage(config, repos):
 
         try:
             items = resp.json()
+            logging.debug(f"Number of items retrieved: {len(items)}")
         except ValueError:
             logging.error(f"Failed to parse JSON response for {org}/{repo_name}")
             continue

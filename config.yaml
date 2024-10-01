@@ -1,0 +1,4 @@
+organization_name: "Ansible Networking"
+workflow_name: "tests.yml"
+repo_config: "repo_config.json"
+timedelta: 14

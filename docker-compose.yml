@@ -1,27 +1,14 @@
 version: '3'
 services:
   triager:
-    build: .
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
     environment:
       - EMAIL_SENDER=${EMAIL_SENDER}
       - EMAIL_PASSWORD=${EMAIL_PASSWORD}
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
       - MAINTAINERS=${MAINTAINERS}
-    ports:
-      - "587:587"
-    volumes:
-      - .:/app
-    command: python -m triager --bugs -c example-config.yaml --log --send-email
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-} #GITHUB TOKEN OPTIONAL
 
-  ci-report:
-    build: .
-    environment:
-      - EMAIL_SENDER=${EMAIL_SENDER}
-      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
-      - MAINTAINERS=${MAINTAINERS}
-    ports:
-      - "587:587"
-    volumes:
-      - .:/app
-    command: python -m triager --ci -c example-config.yaml --log --send-email

@@ -4,15 +4,10 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
+# Copy the code
 COPY . .
 
-EXPOSE 587
-
-ENV EMAIL_SENDER=""
-ENV EMAIL_PASSWORD=""
-ENV GITHUB_TOKEN=""
-ENV MAINTAINERS=""
-
-CMD ["python", "-m", "triager", "--bugs", "-c", "example-config.yaml", "--log", "--send-email"]
+# Run the command when the container starts
+CMD ["python", "-m", "triager"]

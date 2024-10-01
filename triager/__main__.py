@@ -1,6 +1,8 @@
 import argparse
 import logging
 from datetime import datetime
+import os
+from dotenv import load_dotenv
 
 from triager import triager
 from triager.config import Config
@@ -10,14 +12,10 @@ from triager.tablemaker import make_table
 from triager.ci_report import generate_ci_report
 
 def run(args):
-    # setup logger
     logging_level = logging.DEBUG if args.debug else logging.INFO
-    if args.log_to_file:
-        logging.basicConfig(filename=args.log_to_file, level=logging_level)
-    elif args.log:
-        logging.basicConfig(
-            format="%(levelname)-10s%(message)s", level=logging_level
-        )
+    logging.basicConfig(level=logging_level, format='%(levelname)-10s%(message)s')
+
+    load_dotenv()
 
     try:
         config = Config(args.config_file)
@@ -27,17 +25,18 @@ def run(args):
             issues = triager.triage(config, config.bug_repos)
             if issues:
                 table = make_table(issues)
-                logging.info("Printing triaged table to console")
                 print(table)
                 if args.send_email and config.is_email_ready:
                     send_mail(content=table, config=config, subject=f"{config.organization_name} Weekly Triage - {report_date}")
             else:
-                logging.warning("No issues found or error occurred during triage.")
+                message = "No new issues found or error occurred during triage."
+                print(message)
+                if args.send_email and config.is_email_ready:
+                    send_mail(content=message, config=config, subject=f"{config.organization_name} Weekly Triage - No New Issues - {report_date}")
         elif args.ci:
             ci_report = generate_ci_report(config)
             if ci_report:
                 table = make_table(ci_report, ci=True)
-                logging.info("Printing CI report table to console")
                 print(table)
                 report_date = ci_report.get("date", datetime.now().strftime("%Y-%m-%d"))
                 status = ci_report.get("overall_status", "Unknown")
@@ -46,7 +45,7 @@ def run(args):
             else:
                 logging.warning("No CI report generated or error occurred during CI report generation.")
     except Exception as e:
-        logging.error(f"An error occurred: {str(e)}")
+        logging.error(f"An error occurred: {str(e)}", exc_info=True)
         raise
 
 def main():

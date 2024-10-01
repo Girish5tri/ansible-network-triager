@@ -1,3 +1,4 @@
 ptable
 PyYAML
 requests
+python-dotenv
