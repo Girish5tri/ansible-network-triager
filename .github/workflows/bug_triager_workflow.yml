@@ -31,4 +31,4 @@ jobs:
           MAINTAINERS: ${{ secrets.MAINTAINERS }}
           REPO_CONFIG: ${{ secrets.REPO_CONFIG }}
         run: |
-          python -m triager --bugs -c example-config.yaml --log --send-email
+          python -m triager --bugs -c config.yaml --log --send-email

@@ -91,8 +91,7 @@ class Config:
         logging.debug(f"Bug repos: {self.bug_repos}")
         logging.debug(f"CI repos: {self.ci_repos}")
 
-        # Parse maintainers
-
+    # Parse maintainers
     def _set_maintainers(self):
         maintainers_json = os.environ.get("MAINTAINERS", "[]")
         logging.debug(f"MAINTAINERS env var: {maintainers_json}")
@@ -108,8 +107,7 @@ class Config:
 
         logging.debug(f"Maintainers: {self.maintainers}")
 
-        # Parse email configuration
-
+    # Parse email configuration
     def _set_email_config(self):
         self.sender = {
             "email": os.environ.get("EMAIL_SENDER"),
@@ -119,10 +117,11 @@ class Config:
         if self.sender["email"] and self.sender["password"]:
             logging.info("Email configuration found in environment variables")
         else:
-            logging.warning("Email configuration not found in environment variables")
+            logging.warning(
+                "Email configuration not found in environment variables",
+            )
 
-        # Set last triage date
-
+    # Set last triage date
     def _set_last_triage_date(self):
         self.last_triage_date = datetime.utcnow() - timedelta(
             days=int(self.config_data.get("timedelta", 14)),
@@ -147,5 +146,5 @@ class Config:
     @property
     def is_email_ready(self):
         return bool(
-            self.sender["email"] and self.sender["password"] and self.maintainers
+            self.sender["email"] and self.sender["password"] and self.maintainers,
         )

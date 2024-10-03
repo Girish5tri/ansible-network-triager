@@ -1,13 +1,13 @@
-##Template for config.yaml
+# #Template for config.yaml
 
-#Organization name (used in email subject)
-organization_name: "Ansible Networking"
+# #Organization name (used in email subject)
+# organization_name: "Ansible Networking"
 
-#Workflow name
-workflow_name: "tests.yml"
+# #Workflow name
+# workflow_name: "tests.yml"
 
-#Time delta (in days) for triaging issues
-timedelta: 14
+# #Time delta (in days) for triaging issues
+# timedelta: 14
 ##Template for adding repos in Github secrets or .env file(for running locally)
 
 # REPO_CONFIG= {
