@@ -1,14 +1,11 @@
-version: '3'
+version: "3"
 services:
   triager:
-    build:
-      context: ..
-      dockerfile: Dockerfile
-    volumes:
-      - .:/app
-    environment:
-      - EMAIL_SENDER=${EMAIL_SENDER}
-      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
-      - MAINTAINERS=${MAINTAINERS}
-      - GITHUB_TOKEN=${GITHUB_TOKEN:-} #GITHUB TOKEN OPTIONAL
+    build: .
+    env_file: .env
+    command: python -m triager --bugs -c config.yaml --log --send-email
 
+  ci_report:
+    build: .
+    env_file: .env
+    command: python -m triager --ci -c config.yaml --log --send-email

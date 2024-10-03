@@ -1,54 +1,46 @@
-# #Template for config.yaml
+##Template for config.yaml
 
-# # Organization name (used in email subject)
-# organization_name: "Your Organization Name"
+#Organization name (used in email subject)
+organization_name: "Ansible Networking"
 
-# # Workflow name (used for logging and debugging)
-# workflow_name: "Your Workflow Name"
+#Workflow name
+workflow_name: "tests.yml"
 
-# # Path to repository configuration file (default: repo_config.json)
-# repo_config: "repo_config.json"
+#Time delta (in days) for triaging issues
+timedelta: 14
+##Template for adding repos in Github secrets or .env file(for running locally)
 
-# # Time delta (in days) for triaging issues
-# timedelta: 14
-
-
-
-# #Template for repo_config.json
-
-# {
-#   "organization1": {
+# REPO_CONFIG= {
+#   "ansible-collections": {
 #     "ci_and_bug_repos": [
-#       "repo1",
-#       "repo2",
-#       "repo3"
+#       "cisco.nxos",
+#       "arista.eos",
+#       "junipernetworks.junos",
+#       "cisco.asa",
+#       "ansible.netcommon",
+#       "ansible.snmp",
+#       "trendmicro.deepsec",
+#       "splunk.es"
 #     ],
 #     "bug_specific_repos": [
-#       "repo4",
-#       "repo5"
+#       "ansible.scm",
+#       "community.yang"
 #     ]
 #   },
-#   "organization2": {
-#     "ci_and_bug_repos": [
-#       "repo6",
-#       "repo7",
-#       "repo8"
-#     ],
+#   "ansible": {
 #     "bug_specific_repos": [
-#       "repo9",
-#       "repo10"
+#       "pylibssh"
 #     ]
 #   },
-#   "organization3": {
+#   "redhat-cop": {
 #     "ci_and_bug_repos": [
-#       "repo11",
-#       "repo12",
-#       "repo13"
+#       "network.interfaces",
+#       "network.bgp",
+#       "network.base",
+#       "network.ospf"
 #     ],
 #     "bug_specific_repos": [
-#       "repo14",
-#       "repo15"
+#       "network.backup"
 #     ]
 #   }
 # }
-

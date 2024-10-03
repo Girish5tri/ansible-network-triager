@@ -1,13 +1,15 @@
-FROM python:3.9-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 
 COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install -r requirements.txt
-
-# Copy the code
 COPY . .
 
-# Run the command when the container starts
+RUN useradd -m myuser && chown -R myuser:myuser /app
+USER myuser
+
+ENV PYTHONPATH=/app
+
 CMD ["python", "-m", "triager"]

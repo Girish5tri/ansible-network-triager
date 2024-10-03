@@ -21,37 +21,22 @@ pip install -r requirements.txt
 
 1. add your details such as organization_name, workflow_name in `config.yaml` file:
 
-
 organization_name: "Ansible Networking"
 workflow_name: "tests.yml"
-repo_config: "repo_config.json"
 timedelta: 14
 
-
-2. update the `repo_config.json` file with your repos:
-
-
-{
-  "ansible-collections": {
-    "ci_and_bug_repos": [
-      "cisco.nxos",
-      "cisco.ios"
-    ],
-    "bug_specific_repos": [
-      "ansible.scm"
-    ]
-  }
-}
-
-
-3. Create a `.env` file in the root of your directory and add these details:
-
+2. Create a `.env` file in the root of your directory and add these details:
 
 EMAIL_SENDER=your_email@example.com
 EMAIL_PASSWORD=your_email_password
 MAINTAINERS=[{"name": "Your Name", "email": "your_email@example.com"}]
 #GITHUB_TOKEN=your_github_token (optional - enter your github token here to make authenticated requests or comment this line to make unauthenticated API requests)
-
+REPO_CONFIG = {
+<organization>: {
+"ci_and_bug_repos": [<list of repositories>],
+"bug_specific_repos": [<list of repositories>]
+}
+}
 
 ## Usage
 
@@ -61,52 +46,105 @@ MAINTAINERS=[{"name": "Your Name", "email": "your_email@example.com"}]
 
    triager --bugs -c config.yaml --log --send-email
 
-
 2. Run the CI report:
 
    triager --ci -c config.yaml --log --send-email
-
 
 ### Docker Usage
 
 1. Build the Docker image:
 
-   docker-compose build
-
+   sudo docker-compose build
 
 2. Run the bug scrub:
 
-   docker-compose run triager --bugs -c config.yaml --log --send-email
-
+   sudo docker-compose run triager
 
 3. Run the CI report:
 
-   docker-compose run triager --ci -c config.yaml --log --send-email
-
+   sudo docker-compose run ci_report
 
 ### GitHub Actions
 
-1. Store your secrets (EMAIL_SENDER, EMAIL_PASSWORD, MAINTAINERS, GITHUB_TOKEN) in GitHub Actions secrets.
+This tool uses GitHub Actions for automated reporting. To set up the workflows:
 
-To securely store sensitive information like email passwords and recipients, we'll use GitHub Secrets:
-a) Go to your GitHub repository.
-b) Click on "Settings" tab.
-c) In the left sidebar, click on "Secrets and variables", then "Actions".
-d) Click on "New repository secret".
-e) Add the following secrets:
+1. Store your secrets in GitHub Actions:
+   a) Go to your GitHub repository
+   b) Click on "Settings" tab
+   c) In the left sidebar, click on "Secrets and variables", then "Actions"
+   d) Click on "New repository secret"
+   e) Add the following secrets:
 
-Name: EMAIL_SENDER (Your tools email address from which you want to send emails)
-Name: EMAIL_PASSWORD (Your tools email password)
-MAINTAINERS: A JSON string containing the maintainers information.
+   - `EMAIL_SENDER`: Your tool's email address for sending reports
+   - `EMAIL_PASSWORD`: Your tool's email password
+   - `MAINTAINERS`: A JSON string containing the maintainers' information
+   - `REPO_CONFIG`: A JSON string containing the repository configuration
 
-For example:
+2. The following workflows are available in `.github/workflows/`:
 
-EMAIL_SENDER=your-tool-email@gmail.com
-EMAIL_PASSWORD=your-email-password
-MAINTAINERS=[{"name": "John Doe", "email": "john.doe@example.com"}, {"name": "Jane Doe", "email": "jane.doe@example.com"}]
+   - `bug_triager_workflow.yml`: Runs weekly bug triage
+   - `ci_workflow.yml`: Runs daily CI status report
 
+### Workflow Details
 
-2. Use the provided workflow files in `.github/workflows/` to set up automated runs.
+#### Bug Triage Workflow
+
+This workflow runs every Wednesday at 2:30 PM IST (9:00 AM UTC) and can also be triggered manually.
+
+```yaml
+name: Bug Triage Workflow
+
+on:
+  schedule:
+    - cron: '0 9 * * 3'
+  workflow_dispatch:
+
+jobs:
+  run-bug-triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - run: pip install -r requirements.txt
+      - run: python -m triager --bugs -c example-config.yaml --log --send-email
+        env:
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          GITHUB_TOKEN: ${{ github.token }}
+          MAINTAINERS: ${{ secrets.MAINTAINERS }}
+          REPO_CONFIG: ${{ secrets.REPO_CONFIG }}
+
+#### CI Report Workflow
+
+This workflow runs daily at 12:00 PM IST (6:30 AM UTC) and can also be triggered manually.
+
+''''yaml
+name: Nightly CI Report Workflow
+
+on:
+  schedule:
+    - cron: '30 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  run-ci-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - run: pip install -r requirements.txt
+      - run: python -m triager --ci -c example-config.yaml --log --send-email
+        env:
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          GITHUB_TOKEN: ${{ github.token }}
+          MAINTAINERS: ${{ secrets.MAINTAINERS }}
+          REPO_CONFIG: ${{ secrets.REPO_CONFIG }}
+
 
 ## Options
 
@@ -120,6 +158,30 @@ Options | Usage
 '--debug'|Bumps logging level to DEBUG
 '--send-email'|Send the triaged table as an email to the list of maintainers
 
+## Pre-commit Hooks
+
+This tool uses pre-commit hooks to ensure code quality. The hooks perform the following checks:
+
+- Check for merge conflicts
+- Verify symlinks
+- Detect debug statements
+- Fix end of files
+- Remove trailing whitespace
+- Add trailing commas
+- Format code with Prettier
+- Sort import statements with isort
+- Format Python code with Black
+- Lint Python code with Flake8
+
+To use pre-commit:
+
+1. Install pre-commit: `pip install pre-commit`
+2. Install the git hook scripts: `pre-commit install`
+3. (Optional) Run against all files: `pre-commit run --all-files`
+
+Pre-commit will now run automatically on `git commit`. You can also run it manually on staged files with `pre-commit run`.
+
+
 ## Notes
 - An example config file (example-config.yaml) has been placed in this repository for reference.
 - Tested with Python 3.11
@@ -130,3 +192,4 @@ Options | Usage
 GNU General Public License v3.0 or later.
 
 See [LICENSE](https://www.gnu.org/licenses/gpl-3.0.txt) to see the full text.
+```
