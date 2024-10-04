@@ -1,0 +1,34 @@
+name: Nightly CI Report Workflow
+
+on:
+  schedule:
+    # Run CI report daily at 12:00 PM IST (6:30 AM UTC)
+    - cron: "30 6 * * *"
+  workflow_dispatch: # for manual triggering of the workflow
+
+jobs:
+  run-ci-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run CI Report
+        env:
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          GITHUB_TOKEN: ${{ github.token }}
+          MAINTAINERS: ${{ secrets.MAINTAINERS }}
+          REPO_CONFIG: ${{ secrets.REPO_CONFIG }}
+        run: |
+          python -m triager --ci -c config.yaml --log --send-email

@@ -3,3 +3,5 @@
 *.code-workspace
 __pycache__/
 *.egg-info
+.env
+.flake8

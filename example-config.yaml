@@ -1,28 +1,46 @@
----
-orgs:
-  - name: ansible-collections
-    repos:
-      - name: cisco.nxos
-      - name: cisco.ios
-      - name: cisco.iosxr
-      - name: arista.eos
-      - name: vyos.vyos
-      - name: junipernetworks.junos
-      - name: cisco.asa
-      - name: ansible.netcommon
-  - name: ansible
-    repos:
-      - name: ansible
-        labels:
-          - networking
-          - needs_triage
-      - name: pylibssh
-maintainers:
-  - name: John Doe
-    email: john@doe.localhost
-  - name: Jane Doe
-    email: jane@doe.localhost
-triager:
-  email: testtriager@triage.example
-  password: superSecretP@ssWorD
-timedelta: 7
+# #Template for config.yaml
+
+# #Organization name (used in email subject)
+# organization_name: "Ansible Networking"
+
+# #Workflow name
+# workflow_name: "tests.yml"
+
+# #Time delta (in days) for triaging issues
+# timedelta: 14
+##Template for adding repos in Github secrets or .env file(for running locally)
+
+# REPO_CONFIG= {
+#   "ansible-collections": {
+#     "ci_and_bug_repos": [
+#       "cisco.nxos",
+#       "arista.eos",
+#       "junipernetworks.junos",
+#       "cisco.asa",
+#       "ansible.netcommon",
+#       "ansible.snmp",
+#       "trendmicro.deepsec",
+#       "splunk.es"
+#     ],
+#     "bug_specific_repos": [
+#       "ansible.scm",
+#       "community.yang"
+#     ]
+#   },
+#   "ansible": {
+#     "bug_specific_repos": [
+#       "pylibssh"
+#     ]
+#   },
+#   "redhat-cop": {
+#     "ci_and_bug_repos": [
+#       "network.interfaces",
+#       "network.bgp",
+#       "network.base",
+#       "network.ospf"
+#     ],
+#     "bug_specific_repos": [
+#       "network.backup"
+#     ]
+#   }
+# }
