@@ -8,7 +8,7 @@ By default, this prints out a table built from the fetched content to the consol
 When run with `--send-email` it also emails this table to all the listed maintainers.
 
 ## Installation
-
+```bash
 pip install git+https://github.com/ansible-network/ansible-network-triager.git@master
 
 git clone https://github.com/ansible-network/ansible-network-triager.git
@@ -16,28 +16,67 @@ git clone https://github.com/ansible-network/ansible-network-triager.git
 cd ansible-network-triager
 
 pip install -r requirements.txt
-
+```
 ## Configuration
 
-1. add your details such as organization_name, workflow_name in `config.yaml` file:
+1. Add your details such as `organization_name`, `workflow_name`, and `timedelta` in the `config.yaml` file:
 
-organization_name: "Ansible Networking"
-workflow_name: "tests.yml"
-timedelta: 14
+   For example:
+
+ ````yaml
+   organization_name: "Ansible Networking"
+   workflow_name: "tests.yml"
+   timedelta: 14
+````
 
 2. Create a `.env` file in the root of your directory and add these details:
 
-EMAIL_SENDER=your_email@example.com
-EMAIL_PASSWORD=your_email_password
-MAINTAINERS=[{"name": "Your Name", "email": "your_email@example.com"}]
-#GITHUB_TOKEN=your_github_token (optional - enter your github token here to make authenticated requests or comment this line to make unauthenticated API requests)
-REPO_CONFIG = {
-<organization>: {
-"ci_and_bug_repos": [<list of repositories>],
-"bug_specific_repos": [<list of repositories>]
-}
-}
+   - `EMAIL_SENDER`: Your tool's email address for sending reports
+   - `EMAIL_PASSWORD`: Your tool's email password
+   - `MAINTAINERS`: A JSON string containing the maintainers' information
+   - `GITHUB_TOKEN`: your_github_token  (Optional)
+      - Enter your GitHub token here to make authenticated requests; comment out this line to make unauthenticated API requests.
+   - `REPO_CONFIG`:  A JSON-formatted configuration of repositories to monitor
+	   - `ci_and_bug_repos`: Repositories common to both CI and bug workflows
+	   - `bug_specific_repos`: Repositories specific to bug workflows only
 
+Example:
+
+```yaml
+EMAIL_SENDER= testtriager@triage.example
+EMAIL_PASSWORD=superSecretP@ssWorD
+GITHUB_TOKEN=your_github_pat_token
+MAINTAINERS = [
+    {"name": "John doe", "email": "jondoe@gmail.com"},
+    {"name": "Andrea Pirlo", "email": "andrea@gmail.com"}
+]
+REPO_CONFIG = {
+    "ansible-collections": {
+        "ci_and_bug_repos": [
+            "cisco.nxos",
+            "cisco.ios"
+        ],
+        "bug_specific_repos": [
+            "ansible.scm",
+            "vyos.vyos"
+        ]
+    },
+    "ansible": {
+        "bug_specific_repos": [
+            "pylibssh"
+        ]
+    },
+    "redhat-cop": {
+        "ci_and_bug_repos": [
+            "network.interfaces",
+            "network.bgp"
+        ],
+        "bug_specific_repos": [
+            "network.backup"
+        ]
+    }
+}
+```
 ## Usage
 
 ### Local Usage
@@ -68,12 +107,12 @@ REPO_CONFIG = {
 
 This tool uses GitHub Actions for automated reporting. To set up the workflows:
 
-1. Store your secrets in GitHub Actions:
-   a) Go to your GitHub repository
-   b) Click on "Settings" tab
-   c) In the left sidebar, click on "Secrets and variables", then "Actions"
-   d) Click on "New repository secret"
-   e) Add the following secrets:
+1. Store your secrets in GitHub Actions:                                                                                                                                                           
+   a) Go to your GitHub repository                                                                          
+   b) Click on "Settings" tab                                                                                                                                                                
+   c) In the left sidebar, click on "Secrets and variables", then "Actions"                                                                                                                           
+   d) Click on "New repository secret"                                                                                                                                                                   
+   e) Add the following secrets:                                                                                                                                                                      
 
    - `EMAIL_SENDER`: Your tool's email address for sending reports
    - `EMAIL_PASSWORD`: Your tool's email password
@@ -96,55 +135,75 @@ name: Bug Triage Workflow
 
 on:
   schedule:
-    - cron: '0 9 * * 3'
-  workflow_dispatch:
+    - cron: "0 9 * * 3"
+  workflow_dispatch: # for manual triggering of the workflow
 
 jobs:
   run-bug-triage:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
-      - run: pip install -r requirements.txt
-      - run: python -m triager --bugs -c example-config.yaml --log --send-email
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Bug Triage
         env:
           EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
           GITHUB_TOKEN: ${{ github.token }}
           MAINTAINERS: ${{ secrets.MAINTAINERS }}
           REPO_CONFIG: ${{ secrets.REPO_CONFIG }}
-
+        run: |
+          python -m triager --bugs -c config.yaml --log --send-email
+```
 #### CI Report Workflow
 
 This workflow runs daily at 12:00 PM IST (6:30 AM UTC) and can also be triggered manually.
 
-''''yaml
+```yaml
 name: Nightly CI Report Workflow
 
 on:
   schedule:
-    - cron: '30 6 * * *'
-  workflow_dispatch:
+    - cron: "30 6 * * *"
+  workflow_dispatch: # for manual triggering of the workflow
 
 jobs:
   run-ci-report:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
-      - run: pip install -r requirements.txt
-      - run: python -m triager --ci -c example-config.yaml --log --send-email
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run CI Report
         env:
           EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
           GITHUB_TOKEN: ${{ github.token }}
           MAINTAINERS: ${{ secrets.MAINTAINERS }}
           REPO_CONFIG: ${{ secrets.REPO_CONFIG }}
-
+        run: |
+          python -m triager --ci -c config.yaml --log --send-email
+````
 
 ## Options
 
@@ -192,4 +251,4 @@ Pre-commit will now run automatically on `git commit`. You can also run it manua
 GNU General Public License v3.0 or later.
 
 See [LICENSE](https://www.gnu.org/licenses/gpl-3.0.txt) to see the full text.
-```
+
